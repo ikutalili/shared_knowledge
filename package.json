@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "vue3-quill": "^0.3.1"
+  }
+}
