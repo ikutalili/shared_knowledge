@@ -4,6 +4,7 @@ import {Comment16Regular, Heart16Filled, Heart16Regular,} from "@vicons/fluent"
 import {ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import axios from 'axios'
+import {DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined} from "@vicons/antd";
 
 const router = useRouter()
 const route = useRoute()
@@ -68,25 +69,110 @@ fetchData()
 watch(() => route.params.type, fetchData)
   
 console.log(articles)
+function likeArticle(article : Article) {
+  // 如果还没点赞，则点了之后赞数 +1 ，图标状态变为已点，否则相反
+  if (article.like === false){
+    axios({
+      method:'put',
+      url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/like/true'
+    })
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            article.numOfLikes += 1
+            article.like = !article.like
+            localStorage.setItem('article',JSON.stringify(article))
+          }
+          else if (resp.data.message == 'noLogin') {
+            msg.error('please login first !')
+          }
+        })
+  }
+  else{
+    axios({
+      method:'put',
+      url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/like/false'
+    })
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            article.numOfLikes -= 1
+            article.like = !article.like
+            localStorage.setItem('article',JSON.stringify(article))
+          }
+          else if (resp.data.message == 'noLogin') {
+            msg.error('please login first !')
+          }
+        })
+  }
+}
+function dislikeArticle(article :Article) {
+  if (article.dislike === false){
+    axios({
+      method:'put',
+      url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/dislike/true'
+    })
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            article.dislike = !article.dislike
+            article.numOfDislikes += 1
+            localStorage.setItem('article',JSON.stringify(article))
+          }
+          else if (resp.data.message == 'noLogin') {
+            msg.error('please login first !')
+          }
+        })
+  }
+  else{
+    axios({
+      method:'put',
+      url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/dislike/false'
+    })
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            article.dislike = !article.dislike
+            article.numOfDislikes -= 1
+            localStorage.setItem('article',JSON.stringify(article))
+          }
+          else if (resp.data.message == 'noLogin') {
+            msg.error('please login first !')
+          }
+        })
+  }
+}
 function saveArticle(article: Article) {
     // console.log(save === false)
     if(!article.save){
-        article.color = 'red'
         axios ({
             method:'put',
             url:baseURL + 'articles/operation-to-article/' + article.articleId + '/save/true'
         })
-        article.numOfSaves += 1; // 增加保存数量
-        article.save = !article.save
+            .then(function (resp) {
+              if (resp.data.code == 0) {
+                article.color = 'red'
+                article.numOfSaves += 1; // 增加保存数量
+                article.save = !article.save
+              }
+              else if (resp.data.message == 'noLogin') {
+                msg.error('please login first !')
+              }
+            })
     }
     else{
-        article.color = 'black'
+
         axios ({
             method:'put',
             url:baseURL + 'articles/operation-to-article/' + article.articleId + '/save/false'
         })
-        article.numOfSaves -= 1; // 减少保存数量
-        article.save = !article.save
+            .then(function (resp) {
+              if (resp.data.code == 0) {
+                article.color = 'black'
+                article.numOfSaves -= 1; // 减少保存数量
+                article.save = !article.save
+              }
+              else if (resp.data.message == 'noLogin') {
+                msg.error('please login first !')
+              }
+            })
+
     }
     
 }
@@ -127,8 +213,8 @@ function followUser(which: number,article) {
             // article.fansCounts += 1
             articles.value.forEach(a => {
               if (a.authorId == article.authorId) {
-                a.hasFollowed = 'false';
-                a.fansCounts -= 1;
+                a.hasFollowed = 'true';
+                a.fansCounts += 1;
               }
             })
             msg.success('you have followed he/she!')
@@ -142,14 +228,19 @@ function followUser(which: number,article) {
 const coverUrl = ref('http://localhost:8080/avatar-image/2/')
 const avatarUrl = ref('http://localhost:8080/avatar-image/1/')
 
-function clickArticle (article : object,articleUrl : string) { // 此处参数的article是列出来的文章中点击的其中一篇，是一个对象，暂时通过localstorage传递信息
-        router.push({
-            name:'content',
-            params:{
-                articleId:articleUrl // url中传递uuid文章的标题
-            },
-        })
-        localStorage.setItem('article',JSON.stringify(article))
+function clickArticle (article : Article,articleUrl : string) { // 此处参数的article是列出来的文章中点击的其中一篇，是一个对象，暂时通过localstorage传递信息
+  axios({
+    method:'put',
+    // click-article/{articleId}
+    url:baseURL + 'articles/click-article/' + article.articleId
+  })
+  router.push({
+        name:'content',
+        params:{
+            articleId:articleUrl // url中传递uuid文章的标题
+        },
+    })
+    localStorage.setItem('article',JSON.stringify(article))
         // console.log(article)
 }
 const showCard = ref(false)
@@ -182,10 +273,13 @@ function dateFormat(datetime:Date) {
                 </template>
                 
                 <div class="title">
+                  <n-ellipsis  :line-clamp="1">
                     {{article.articleTitle}}
+                  </n-ellipsis>
+
                 </div>       
                 <div style="margin-left: -25px;">
-                  <n-ellipsis style="max-width: 240px" :line-clamp="2">
+                  <n-ellipsis :line-clamp="2">
                     {{ article.preview }}
                   </n-ellipsis>
                 </div>      
@@ -235,6 +329,28 @@ function dateFormat(datetime:Date) {
 
                 </n-flex>
                 <n-flex>
+                  <div>
+                    <n-button text type="info" class="bottom-button-article" @click="likeArticle(article)">
+                      <template #icon>
+                        <n-icon>
+                          <LikeFilled v-if="article.like"></LikeFilled>
+                          <LikeOutlined v-else></LikeOutlined>
+                        </n-icon>
+                      </template>
+                      {{ article.numOfLikes }}</n-button>
+                  </div>
+                  <!-- --------踩 -->
+                  <div>
+                    <n-button text class="bottom-button-article" color="black" @click="dislikeArticle(article)">
+                      <template #icon>
+                        <n-icon>
+                          <DislikeFilled v-if="article.dislike"></DislikeFilled>
+                          <DislikeOutlined v-else></DislikeOutlined>
+                        </n-icon>
+                      </template>
+                      {{ article.numOfDislikes }}</n-button>
+                  </div>
+
                       <div>
                     <n-button text :color="article.color" class="bottom-button-article" @click="saveArticle(article);
                     ">

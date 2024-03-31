@@ -1,30 +1,28 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
+    // import { ref } from 'vue';
     import { useRouter,useRoute } from 'vue-router';
-    const route=useRoute()
+    // const route = useRoute()
 
     import {
-      NIcon,NBreadcrumb,NBreadcrumbItem,NFlex,useLoadingBar, useMessage,NMessageProvider,NSpace
+      NIcon,NBreadcrumb,NBreadcrumbItem,NFlex
     } from 'naive-ui'
     import {
-      IosDesktop,IosBulb,IosEasel,IosPeople
+      IosDesktop,IosEasel,IosPeople
     } from '@vicons/ionicons4'
     import {
-      Recommend,Apple,Cafe,Basketball,Arrival,ColorPalette
+      Apple,Cafe,Basketball,Arrival,ColorPalette
     } from "@vicons/carbon"
     import {News20Regular} from "@vicons/fluent"
     import {Fire} from "@vicons/carbon"
-    import axios from 'axios'
-    const message = useMessage()
-    const loading = useLoadingBar()
+    // import axios from 'axios'
+    // const message = useMessage()
+    // const loading = useLoadingBar()
     const router = useRouter()
   //   function delay(ms: number) {
   //   return new Promise( resolve => setTimeout(resolve, ms) );
   // }
-    function recommend () {
-      loading.start()
-      }
-    const baseURL = 'http://localhost:5173/api'
+
+    // const baseURL = 'http://localhost:5173/api'
     function showArticles(type:string) {
       router.push({
         name:'article-list',

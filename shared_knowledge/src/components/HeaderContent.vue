@@ -103,42 +103,6 @@
                 }
                 console.log(resp.data.data)
               })
-        //   if (token === null) {
-        //     message.error('请先登录～')
-        //     router.push({
-        //       path:'/login'
-        //     })
-        //   }
-        //   else {
-        //     // console.log(token)
-        //     //  2. 若Authorization不为空，就再发送请求
-        //       axios({
-        //       url:baseURL + '/user/my-info',
-        //       headers:{
-        //         'Authorization':token
-        //       }
-        //     })
-        //     .then(function(resp) {
-        //       // 若token不过期，登录成功
-        //       if (resp.data.code === 0) {
-        //         message.success('后端验证成功！')
-        //         const user = resp.data.data
-        //         localStorage.setItem('user',JSON.stringify(user))
-        //         router.push({
-        //         path:'/my-page'
-        //       }
-        //     )
-        //       }
-        //       // token过期，登录失败
-        //       else {
-        //         message.error('不好意思哦～，您的登录已过期，请先登录')
-        //         router.push({
-        //           path:'/login'
-        //         })
-        //       }
-        //     }
-        //   )
-        // }
       }
       else if (String(key) == 'logout') {
           axios({
@@ -149,6 +113,7 @@
               message.success('已退出登录～')
               localStorage.removeItem('user')
               localStorage.removeItem('token')
+              localStorage.removeItem('expireTime')
               router.push({
                 path:'/login'
               })

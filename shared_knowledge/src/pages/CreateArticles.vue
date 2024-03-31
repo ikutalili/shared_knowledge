@@ -155,6 +155,7 @@ import {
   NGrid,NGi,NUpload,NDropdown,NFlex
 } from 'naive-ui'
 import axios from 'axios'
+import router from "@/router";
 
 // 发布文章，即把文章存到服务器上
 async function publish(){
@@ -179,6 +180,12 @@ async function publish(){
     if (resp.data.code === 0) {
       message.success('成功！！')
       uploadRef.value?.submit()
+      router.push({
+        name:'article-list',
+        params:{
+          type:type.value
+        }
+      })
     }
     else {
       message.error('error')

@@ -206,10 +206,10 @@ import axios from 'axios';
     const router = useRouter()
     const email = ref('')
     const password = ref('')
-    const timestamp = ref(null)
+    // const timestamp = ref(null)
     const nickname = ref('')
     const gender = ref(0)
-    const data = ref('')
+    // const data = ref('')
     const Captchas = ref('')
     const baseURL = 'http://localhost:5173/api/'
     const flag = ref({
@@ -291,28 +291,10 @@ import axios from 'axios';
             }
         }, 1000);
     }
-    
-   
-    function changePage() {
-       flag.value.register = 'register'
-    }
-    function dateFormat(datetime:Date) {
-        // 使用 Date 对象创建一个 datetime 对象
-        datetime = new Date(datetime);
 
-        // 使用 Date 对象的方法获取具体的日期和时间
-        const year = datetime.getFullYear();
-        const month = datetime.getMonth() + 1; // 月份从 0 开始，所以要加 1
-        const day = datetime.getDate();
-        const hour = datetime.getHours();
-        const minute = datetime.getMinutes();
-        const second = datetime.getSeconds();
-
-    // 格式化日期时间
-        const formattedDatetime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-        return datetime
-        console.log(formattedDatetime)
-    }
+    // function changePage() {
+    //    flag.value.register = 'register'
+    // }
 
     function login() {
         // const data:string = '';
@@ -341,17 +323,28 @@ import axios from 'axios';
              for( let key in  mapData) {
                console.log('key---'+key)
                console.log(mapData[key])
+               let expireTime = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // 三天后过期
                localStorage.setItem('token',key)
                localStorage.setItem('user',JSON.stringify(mapData[key]))
+               localStorage.setItem('expireTime',expireTime.toString())
              }
 
                 // console.log(resp.data.data)
                 // localStorage.setItem('token',resp.data.data)
+
+              // router.push({
+              //   name:'article-list',
+              //   params:{
+              //     type:type
+              //   }
+              // })
                 router.push({
-                    path:'/articles-list'
+                  name:'article-list',
+                  params:{
+                    type:'编程',
+                  }
                 })
             }
-            
         })
 
     }
@@ -386,13 +379,16 @@ import axios from 'axios';
                 message.success('注册成功！')
                 let mapData = resp.data.data
                 for( let key in  mapData) {
-                  console.log('key---'+key)
-                  console.log(mapData[key])
+                  let expireTime = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // 三天后过期
                   localStorage.setItem('token',key)
                   localStorage.setItem('user',JSON.stringify(mapData[key]))
+                  localStorage.setItem('expireTime',expireTime.toString())
                 }
                 router.push({
-                    path:'/'
+                  name:'article-list',
+                  params:{
+                    type:'编程'
+                  }
                 })
             }
         })

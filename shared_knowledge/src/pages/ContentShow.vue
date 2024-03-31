@@ -1,18 +1,6 @@
 <script setup lang="ts" name="ContentShow">
 import {
-  NAvatar,
-  NButton,
-  NCard,
-  NCollapse,
-  NCollapseItem,
-  NFlex,
-  NGi,
-  NGrid,
-  NIcon,
-  NInput,
-  NModal,
-  NQrCode,
-  NTag,
+  NAvatar, NButton, NCard, NCollapse, NCollapseItem, NFlex, NGi, NGrid, NIcon, NInput, NModal, NQrCode, NTag,
   useMessage
 } from 'naive-ui';
 import {reactive, ref} from 'vue'
@@ -134,9 +122,11 @@ function reportComment(which:number,id:number,reason:string) {
           if (resp.data.code == 0) {
             message.success('举报成功')
           }
+          else if(resp.data.message == 'noLogin') {
+            message.error('不支持匿名，请先登录再举报哦～')
+          }
           else {
             message.error('请稍候再试')
-
           }
         })
 }
@@ -149,6 +139,10 @@ function reportArticle(id:string, reason:string) {
         .then(function (resp) {
           if (resp.data.code == 0) {
             message.success('举报成功')
+            showModal.value = false
+          }
+          else if (resp.data.message == 'noLogin'){
+            message.error('不支持匿名，请先登录再举报哦～')
             showModal.value = false
           }
           else {
@@ -175,7 +169,8 @@ const comments = ref<Comments[]>([]);
 
 const getComments = async () => {
    await axios ({
-    url:baseURL + 'all-comments/' + article.articleId + '/' + user.userId
+    // url:baseURL + 'all-comments/' + article.articleId + '/' + user.userId
+     url:baseURL + 'all-comments/' + article.articleId
   })
   .then( function (resp) {
     comments.value = resp.data.data
@@ -203,9 +198,9 @@ function test22() {
 }
 // do not change this!!
 const flcomments = reactive({
-  userId:user.userId,
-  userName:user.userName,
-  avatar:user.avatarUrl,
+  // userId:user.userId,
+  // userName:user.userName,
+  // avatar:user.avatarUrl,
   articleId:article.articleId,
   comment:'',
   numOfLikes:0,
@@ -213,11 +208,11 @@ const flcomments = reactive({
 })
 const slcomments = reactive({
   flCommentId:'',
-  replyUserId:user.userId,
+  // replyUserId:user.userId,
   repliedUserId:'',
-  replyUserName:user.userName,
+  // replyUserName:user.userName,
   repliedUserName:'',
-  replyAvatar:user.avatarUrl,
+  // replyAvatar:user.avatarUrl,
   articleId:article.articleId,
   comment:'',
   numOfLikes:0,
@@ -227,46 +222,64 @@ const flagFLC = ref({})
 const flagSLC = ref({})
 
 function sendComment() {
-  axios({
-    method:'post',
-    url:baseURL + 'flComment/' + article.articleId,
-    data:flcomments
-  })
-  .then( function(resp) {
-    if (resp.data.code === 0) {
-      message.success('评论成功')
-      flcomments.comment = ''
-      article.numOfComments += 1
-      localStorage.setItem('article',JSON.stringify(article))
-      getComments()
-    }
-    else {
-      message.error('请稍后再试')
-    }
-  })
+  if (flcomments.comment != '') {
+    axios({
+      method:'post',
+      url:baseURL + 'flComment/' + article.articleId,
+      data:flcomments
+    })
+        .then( function(resp) {
+          if (resp.data.code === 0) {
+            message.success('评论成功')
+            flcomments.comment = ''
+            article.numOfComments += 1
+            localStorage.setItem('article',JSON.stringify(article))
+            getComments()
+          }
+          else if (resp.data.message == 'noLogin') {
+            message.error('不支持匿名发言哦～请先登录再发表评论 ')
+          }
+          else {
+            message.error('请稍后再试')
+          }
+        })
+  }
+  else {
+    message.error('评论不能为空')
+  }
+
 }
 // 代表第一层评论的回复
 function replyFLComment(repliedId,flCommentId,repliedName) {
   slcomments.repliedUserId = repliedId
   slcomments.flCommentId = flCommentId
   slcomments.repliedUserName = repliedName
-  axios({
-    method:'post',
-    url:baseURL + 'slComment/' + article.articleId,
-    data:slcomments
-  })
-  .then(function (resp) {
-    if (resp.data.code === 0) {
-      message.success('评论成功')
-      slcomments.comment = ''
-      article.numOfComments += 1
-      localStorage.setItem('article',JSON.stringify(article))
-      getComments()
-    }
-    else {
-      message.error('请稍后再试')
-    }
-  })
+  if (slcomments.comment != '') {
+    axios({
+      method:'post',
+      url:baseURL + 'slComment/' + article.articleId,
+      data:slcomments
+    })
+        .then(function (resp) {
+          if (resp.data.code === 0) {
+            message.success('评论成功')
+            slcomments.comment = ''
+            article.numOfComments += 1
+            localStorage.setItem('article',JSON.stringify(article))
+            getComments()
+          }
+          else if (resp.data.message == 'noLogin') {
+            message.error('不支持匿名发言哦～请先登录再发表评论 !')
+          }
+          else {
+            message.error('请稍后再试')
+          }
+        })
+  }
+  else {
+    message.error('评论不能为空!')
+  }
+
 
 }
 // 代表第二层评论的回复
@@ -274,132 +287,210 @@ function replySLComment(repliedId,flCommentId,repliedName) {
   slcomments.repliedUserId = repliedId
   slcomments.flCommentId = flCommentId
   slcomments.repliedUserName = repliedName
-  axios({
-    method:'post',
-    url:baseURL + 'slComment/' + article.articleId,
-    data:slcomments
-  })
-  .then(function (resp) {
-    if (resp.data.code === 0) {
-      message.success('评论成功')
-      slcomments.comment = ''
-      article.numOfComments += 1
-      localStorage.setItem('article',JSON.stringify(article))
-      getComments()
-    }
-    else {
-      message.error('请稍后再试')
-
-    }
-  })
-
+  if (slcomments.comment != '') {
+    axios({
+      method:'post',
+      url:baseURL + 'slComment/' + article.articleId,
+      data:slcomments
+    })
+        .then(function (resp) {
+          if (resp.data.code === 0) {
+            message.success('评论成功')
+            slcomments.comment = ''
+            article.numOfComments += 1
+            localStorage.setItem('article',JSON.stringify(article))
+            getComments()
+          }
+          else if (resp.data.message == 'noLogin') {
+            message.error('不支持匿名发言哦～请先登录再发表评论 !')
+          }
+          else {
+            message.error('请稍后再试')
+          }
+        })
+  }
+  else {
+    message.error('评论不能为空!')
+  }
 }
 function operationToArticle() {
     if(article.save === false){
-      article.color = 'red'
-      article.numOfSaves += 1
-      article.save = !article.save
       axios ({
         method:'put',
         url:baseURL + 'articles/operation-to-article/' + article.articleId + '/save/true'
       })
-      localStorage.setItem('article',JSON.stringify(article))
+          .then(function (resp) {
+            if (resp.data.code == 0) {
+              article.color = 'red'
+              article.numOfSaves += 1
+              article.save = !article.save
+              localStorage.setItem('article',JSON.stringify(article))
+            }
+            else if (resp.data.message == 'noLogin') {
+              message.error('please login first !')
+            }
+          })
+
     }
     else{
-      article.color = 'black'
-      article.numOfSaves -= 1
-      article.save = !article.save
       axios ({
         method:'put',
         url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/save/false'
       })
+          .then(function (resp) {
+            if (resp.data.code == 0) {
+              article.color = 'black'
+              article.numOfSaves -= 1
+              article.save = !article.save
+            }
+            else if (resp.data.message == 'noLogin') {
+              message.error('please login first !')
+            }
+          })
       localStorage.setItem('article',JSON.stringify(article))
     }
     
 
 }
 function likeArticle() {
-  
   // 如果还没点赞，则点了之后赞数 +1 ，图标状态变为已点，否则相反
   if (article.like === false){
-    article.numOfLikes += 1
-    article.like = !article.like
     axios({
       method:'put',
         url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/like/true'
     })
-    localStorage.setItem('article',JSON.stringify(article))
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            article.numOfLikes += 1
+            article.like = !article.like
+            localStorage.setItem('article',JSON.stringify(article))
+          }
+          else if (resp.data.message == 'noLogin') {
+            message.error('please login first !')
+          }
+        })
   }
   else{
-    article.numOfLikes -= 1
-    article.like = !article.like
     axios({
       method:'put',
         url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/like/false'
     })
-    localStorage.setItem('article',JSON.stringify(article))
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            article.numOfLikes -= 1
+            article.like = !article.like
+            localStorage.setItem('article',JSON.stringify(article))
+          }
+          else if (resp.data.message == 'noLogin') {
+            message.error('please login first !')
+          }
+        })
   }
 }
 function dislikeArticle() {
   if (article.dislike === false){
-    article.dislike = !article.dislike
-    article.numOfDislikes += 1
     axios({
       method:'put',
         url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/dislike/true'
     })
-    localStorage.setItem('article',JSON.stringify(article))
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            article.dislike = !article.dislike
+            article.numOfDislikes += 1
+            localStorage.setItem('article',JSON.stringify(article))
+          }
+          else if (resp.data.message == 'noLogin') {
+            message.error('please login first !')
+          }
+        })
   }
   else{
-    article.dislike = !article.dislike
-    article.numOfDislikes -= 1
     axios({
       method:'put',
         url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/dislike/false'
     })
-    localStorage.setItem('article',JSON.stringify(article))
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            article.dislike = !article.dislike
+            article.numOfDislikes -= 1
+            localStorage.setItem('article',JSON.stringify(article))
+          }
+          else if (resp.data.message == 'noLogin') {
+            message.error('please login first !')
+          }
+        })
   }
 }
 // "likeComment/{articleId}/{userId}/{which}/{commentId}/{bool}"
 function likeComment(comment,which:string,id) {
   console.log(comment.like === true)
-  console.log('like'+id)
-  console.log(baseURL + 'likeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/false')
   if (comment.like) {
-    comment.numOfLikes -= 1
-    comment.like = !comment.like
     axios({
       method:'put',
-      url:baseURL + 'likeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/false'
+      // url:baseURL + 'likeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/false'
+      url:baseURL + 'likeComment/' + article.articleId + '/' + which + '/' + id +'/false'
     })
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            comment.numOfLikes -= 1
+            comment.like = !comment.like
+          }
+          else if (resp.data.message == 'noLogin') {
+            message.error('please login first !')
+          }
+        })
   }
   else {
-    comment.numOfLikes += 1
-    comment.like = !comment.like
     axios({
       method:'put',
-      url:baseURL + 'likeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/true'
+      // url:baseURL + 'likeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/true'
+      url:baseURL + 'likeComment/' + article.articleId + '/' + which + '/' + id +'/true'
     })
+        .then(function (resp) {
+          if (resp.data.code == 0) {
+            comment.numOfLikes += 1
+            comment.like = !comment.like
+          }
+          else if (resp.data.message == 'noLogin') {
+            message.error('please login first !')
+          }
+        })
   }
 }
 function dislikeComment(comment,which:string,id) {
-    console.log('dislike'+id)
-    console.log(baseURL + 'dislikeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/false')
+    // console.log('dislike'+id)
+    // console.log(baseURL + 'dislikeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/false')
     if (comment.dislike) {
-      comment.numOfDislikes -= 1
-      comment.dislike = !comment.dislike
       axios({
         method:'put',
-        url:baseURL + 'dislikeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/false'
+        // url:baseURL + 'dislikeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/false'
+        url:baseURL + 'dislikeComment/' + article.articleId + '/' + which + '/' + id +'/false'
     })
+          .then(function (resp) {
+            if (resp.data.code == 0) {
+              comment.numOfDislikes -= 1
+              comment.dislike = !comment.dislike
+            }
+            else if (resp.data.message == 'noLogin') {
+              message.error('please login first !')
+            }
+          })
     }
     else {
-      comment.numOfDislikes += 1
-      comment.dislike = !comment.dislike
       axios({
         method:'put',
-        url:baseURL + 'dislikeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/true'
+        // url:baseURL + 'dislikeComment/' + article.articleId + '/' + user.userId + '/' + which + '/' + id +'/true'
+        url:baseURL + 'dislikeComment/' + article.articleId + '/'  + which + '/' + id +'/true'
     })
+          .then(function (resp) {
+            if (resp.data.code == 0) {
+              comment.numOfDislikes += 1
+              comment.dislike = !comment.dislike
+            }
+            else if (resp.data.message == 'noLogin') {
+              message.error('please login first !')
+            }
+          })
     }
 }
 function showComment() {
@@ -564,13 +655,20 @@ function dateFormat(datetime:Date) {
       <!-- 评论区域 我的评论条 -->
       <div style="margin-top: 20px;">
         <n-flex>
-          <div>
+          <div v-if="user != null">
               <n-avatar
               round
               :size="30"
               :src="baseURL + 'avatar-image/1/' + user.avatarUrl"
               />
               </div>
+          <div v-else>
+            <n-avatar
+                round
+                :size="30"
+                :src="baseURL + 'avatar-image/1/noLogin.jpg'"
+            />
+          </div>
             <div style="width:80%">
               <n-input v-model:value="flcomments.comment" type="text" placeholder="留下你的评论吧" />
             </div>
@@ -612,7 +710,6 @@ function dateFormat(datetime:Date) {
                 {{ comment.flComment.userName }}
                 <n-tag type="info" class="tag" :bordered="false" v-if="comment.flComment.userName === article.authorName">作者</n-tag>
               </div>
-              
               </n-flex>
             </div>
           <div style="padding-left: 40px;margin-top: -15px;font-size: 20px;">

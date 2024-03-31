@@ -1,7 +1,7 @@
 
 // 第一步: 引入createRouter
 import { createRouter,createWebHistory } from "vue-router";
-import axios from 'axios'
+// import axios from 'axios'
 // 引入一个要展示的组件
 import Login from "../pages/Login.vue";
 import ContentShow from '../pages/ContentShow.vue'
@@ -59,8 +59,20 @@ const router = createRouter({
             component:Management
         }
     ]
-
 })
+router.beforeEach((to, from, next) => {
+    // const threeDaysInMilliseconds = 3 * 24 * 60 * 60 * 1000; // 三天的毫秒数
+    // const expireTime = new Date().getTime() + threeDaysInMilliseconds;
+    const expireTime = localStorage.getItem('expireTime');
+    const now = new Date().getTime();
+    if (now > Number(expireTime)) {
+        // 用户信息已过期，清除用户信息
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('expireTime');
+    }
+    next()
+});
 // async function checkUserLoggedIn() : Promise<boolean> {
 //     console.log('---------')
 //     const token = localStorage.getItem('token')
