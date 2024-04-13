@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { NBreadcrumb,NIcon,NBreadcrumbItem,NInput,NModal,NCard,NFlex,NDropdown, useMessage,NAvatar } from 'naive-ui';
     import {
-        MdCreate,MdSearch,IosLogOut
+        MdCreate,MdSearch,IosLogOut,IosLogIn
     } from '@vicons/ionicons4'
     import {
       UserProfile,UserAvatar,Pen,TaskTools
@@ -195,14 +195,18 @@ import logo from '../imgs/logo.png'
             style="cursor: pointer;"
           />
           
-        <n-breadcrumb separator="">          
-           
+        <n-breadcrumb separator="">
             <n-breadcrumb-item @click="createArticles()">
             <n-icon :component="MdCreate" /> 创作</n-breadcrumb-item>
+
+            <n-breadcrumb-item @click="router.push({path:'/login'})" v-if="!(user != null)">
+              <n-icon :component="IosLogIn" /> 登录</n-breadcrumb-item>
+
             <n-dropdown 
             :options="options"
             placement="bottom-start"
             @select="handleSelect"
+            v-else
             >
                 <n-breadcrumb-item @click="handleClick">
                 <n-icon :component="UserProfile" /> 我的</n-breadcrumb-item>

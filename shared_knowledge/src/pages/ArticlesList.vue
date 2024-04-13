@@ -70,17 +70,21 @@ watch(() => route.params.type, fetchData)
   
 console.log(articles)
 function likeArticle(article : Article) {
+  console.log(article.like)
   // 如果还没点赞，则点了之后赞数 +1 ，图标状态变为已点，否则相反
-  if (article.like === false){
+  if (article.like == false || article.like == null){
     axios({
       method:'put',
       url:baseURL + 'articles/operation-to-article/' + article.articleId  + '/like/true'
     })
         .then(function (resp) {
           if (resp.data.code == 0) {
+            // alert("点赞")
             article.numOfLikes += 1
             article.like = !article.like
-            localStorage.setItem('article',JSON.stringify(article))
+            // localStorage.setItem('article',JSON.stringify(article))
+            console.log(article.numOfLikes)
+            console.log(article.like)
           }
           else if (resp.data.message == 'noLogin') {
             msg.error('please login first !')
@@ -96,7 +100,7 @@ function likeArticle(article : Article) {
           if (resp.data.code == 0) {
             article.numOfLikes -= 1
             article.like = !article.like
-            localStorage.setItem('article',JSON.stringify(article))
+            // localStorage.setItem('article',JSON.stringify(article))
           }
           else if (resp.data.message == 'noLogin') {
             msg.error('please login first !')
@@ -114,7 +118,7 @@ function dislikeArticle(article :Article) {
           if (resp.data.code == 0) {
             article.dislike = !article.dislike
             article.numOfDislikes += 1
-            localStorage.setItem('article',JSON.stringify(article))
+            // localStorage.setItem('article',JSON.stringify(article))
           }
           else if (resp.data.message == 'noLogin') {
             msg.error('please login first !')
@@ -130,7 +134,7 @@ function dislikeArticle(article :Article) {
           if (resp.data.code == 0) {
             article.dislike = !article.dislike
             article.numOfDislikes -= 1
-            localStorage.setItem('article',JSON.stringify(article))
+            // localStorage.setItem('article',JSON.stringify(article))
           }
           else if (resp.data.message == 'noLogin') {
             msg.error('please login first !')

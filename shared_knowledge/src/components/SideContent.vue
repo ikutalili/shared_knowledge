@@ -1,6 +1,6 @@
 <script setup lang="ts">
     // import { ref } from 'vue';
-    import { useRouter,useRoute } from 'vue-router';
+    import { useRouter } from 'vue-router';
     // const route = useRoute()
 
     import {
@@ -13,7 +13,7 @@
       Apple,Cafe,Basketball,Arrival,ColorPalette
     } from "@vicons/carbon"
     import {News20Regular} from "@vicons/fluent"
-    import {Fire} from "@vicons/carbon"
+    import {Fire,Recommend} from "@vicons/carbon"
     // import axios from 'axios'
     // const message = useMessage()
     // const loading = useLoadingBar()
@@ -40,6 +40,9 @@
       <n-flex vertical align="center">
           <n-breadcrumb-item @click="showArticles('排行榜')" >
           <n-icon :component="Fire"/> 排行榜</n-breadcrumb-item>
+
+         <n-breadcrumb-item @click="showArticles('推荐')" >
+          <n-icon :component="Recommend"/> 推荐</n-breadcrumb-item>
 
           <n-breadcrumb-item @click="showArticles('编程')">
           <n-icon :component="IosDesktop" /> 编程</n-breadcrumb-item>

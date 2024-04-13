@@ -341,7 +341,7 @@ import axios from 'axios';
                 router.push({
                   name:'article-list',
                   params:{
-                    type:'编程',
+                    type:'推荐',
                   }
                 })
             }
