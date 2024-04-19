@@ -2,7 +2,7 @@
 ## login page
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/683361e2-5655-443c-8ad8-960ea937edf8)
 ## sign up page
-![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/77dacf2f-fad5-4c38-a3aa-142a5a04e7d9)
+![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/4052707e-4fbe-4d87-bfe0-9f37fa034026)
 ## reset the password if you forget it
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/a6fc3402-8552-4123-9317-028975a9cb8e)
 ## the recommendation of articles based on your interest.
