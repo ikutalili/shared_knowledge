@@ -13,8 +13,9 @@
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/e1837615-4742-4019-91a8-f353ccbc3199)
 ## the personal information page
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/3598f5e1-e534-4cbd-bea5-39dba67e136a)
-## report the rules violated content
-![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/a7ca4a4b-8c18-4dd3-a2d9-e94c14176c26)
+## report the content which violated the rules
+![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/96e8a67a-9d80-480d-96dc-34e10a4c24b5)
+
 ## you also can manage the users,articles and the comments of articles if you were admin (eg. removing the specified article)
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/5bd08953-756a-4638-8622-a8b3887a31a1)
 ## read article
