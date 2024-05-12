@@ -10,15 +10,18 @@ import {Comment16Regular, Heart16Filled, Heart16Regular} from "@vicons/fluent"
 import {IosFlag, MdPaperPlane} from '@vicons/ionicons4'
 import {useRoute} from 'vue-router'
 import axios from 'axios'
-
+import {useIPStore} from "@/store/IPStore.ts";
 const route = useRoute()
 // console.log('id===>'+route.params.articleId)
 const title = route.params.articleId  // 此为uuid标题
 const message = useMessage()
 const showModal = ref(false)
-const baseURL = 'http://localhost:5173/api/'
+// const baseURL = 'http://localhost:5173/api/'
+const baseURL = useIPStore().baseURL + '/'
+const currentURL = window.location.href
 const articleHtml = ref('')
 const userObj = localStorage.getItem('user')
+const showShareCard = ref(false)
 let user = reactive(JSON.parse(userObj))
 const articleObj = localStorage.getItem('article')
 
@@ -161,7 +164,6 @@ axios ({
   }
   else {
     articleHtml.value = resp.data
-    // console.log(articleHtml.value + '---------')
   }
 })
 // 随后获取所有评论数据
@@ -193,9 +195,6 @@ getComments()
 //   };
 // });
 
-function test22() {
-
-}
 // do not change this!!
 const flcomments = reactive({
   // userId:user.userId,
@@ -349,8 +348,6 @@ function operationToArticle() {
           })
       localStorage.setItem('article',JSON.stringify(article))
     }
-    
-
 }
 function likeArticle() {
   // 如果还没点赞，则点了之后赞数 +1 ，图标状态变为已点，否则相反
@@ -535,7 +532,7 @@ function dateFormat(datetime:Date) {
                         <n-avatar
                           round
                           :size="30"
-                          :src="baseURL + '/avatar-image/1/' + article.avatar"
+                          :src="useIPStore().avatarURL + article.avatar"
                           @click="test()"
                         />
                       </div>
@@ -593,13 +590,13 @@ function dateFormat(datetime:Date) {
               </n-button>
 
               <!-- 分享 -->
-              <n-button text class="bottom-button-article" @click="test22()">
+              <n-button text class="bottom-button-article" @click="showShareCard = !showShareCard">
               <template #icon>
               <n-icon>
                 <MdPaperPlane ></MdPaperPlane>
               </n-icon>
             </template>分享
-            <n-modal>
+            <n-modal  v-model:show = "showShareCard">
                 <n-card
                   style="width: auto"
                   :bordered="false"
@@ -608,7 +605,7 @@ function dateFormat(datetime:Date) {
                   aria-modal="true"
                 >
                   <n-qr-code
-                  value="https://www.naiveui.com/"
+                  :value=currentURL
                   color="#409eff"
                   background-color="#F5F5F5"
                 />
@@ -659,14 +656,14 @@ function dateFormat(datetime:Date) {
               <n-avatar
               round
               :size="30"
-              :src="baseURL + 'avatar-image/1/' + user.avatarUrl"
+              :src="useIPStore().avatarURL + user.avatarUrl"
               />
               </div>
           <div v-else>
             <n-avatar
                 round
                 :size="30"
-                :src="baseURL + 'avatar-image/1/noLogin.jpg'"
+                :src="useIPStore().avatarURL + 'noLogin.jpg'"
             />
           </div>
             <div style="width:80%">
@@ -703,7 +700,7 @@ function dateFormat(datetime:Date) {
                  <n-avatar
                   round
                   :size="30"
-                  :src="baseURL + 'avatar-image/1/' + comment.flComment.avatar"
+                  :src="useIPStore().avatarURL + comment.flComment.avatar"
                   />
               </div>
               <div style="font-size: 20px;font-weight: bold;" >
@@ -816,7 +813,7 @@ function dateFormat(datetime:Date) {
                  <n-avatar
                   round
                   :size="30"
-                  :src="baseURL + '/avatar-image/1/' + slComment.replyAvatar"
+                  :src="useIPStore().avatarURL + slComment.replyAvatar"
                   />
               </div>
               <div style="font-size: 20px;font-weight: bold;" >

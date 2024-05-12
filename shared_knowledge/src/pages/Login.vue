@@ -4,7 +4,36 @@
             <n-gi class="login-form" style="width: 500px;margin-left: 200px;">             
                 <div v-if="flag.register == 'register'">
                     <n-flex justify="center">
-                        <div style="font-size: 30px;font-weight: bold;font-family: Dela;">
+
+                      <n-modal v-model:show="showModal" :mask-closable="false">
+                        <n-card
+                            style="width: 600px"
+                            title="请选择感兴趣的话题"
+                            :bordered="false"
+                            size="huge"
+                            role="dialog"
+                            aria-modal="true"
+                        >
+                          <n-flex>
+                            <n-tag v-for="type in types" :key="type" type="info" class="report-reason" @click="addType(type)">
+                              {{ type }}
+                            </n-tag>
+                          </n-flex>
+                          <hr>
+                          已选择：
+<!--                          <n-tag type="info" class="report-reason" v-show="showSelect">-->
+<!--                            {{ selectReason }}</n-tag>-->
+                          <n-flex>
+                            <n-tag v-for="type in selectedType" :key="type" type="success" class="report-reason">
+                              {{ type }}
+                            </n-tag>
+                          </n-flex>
+                          <template #footer>
+                            <n-button :disabled="postDisable" type="info" block @click="postType()">开始你的阅读之旅</n-button>
+                          </template>
+                        </n-card>
+                      </n-modal>
+                        <div style="font-size: 30px;font-weight: bold;font-family: Dela,serif;">
                             非常感谢你有加入我们的想法
                         </div>
                         <n-form label-width="30" style="width:70%">        
@@ -192,9 +221,9 @@
 
 <script setup lang="ts">
 
-    import {
-        NForm,NFormItem,NInput,NGrid,NGi,NIcon,NFlex,NButton,NRadio,NRadioGroup,useMessage,useDialog
-    } from 'naive-ui'
+import {
+  NForm, NFormItem, NInput, NGrid, NGi, NIcon, NFlex, NButton, NRadio, NRadioGroup, useMessage, useDialog, NModal, NCard, NTag
+} from 'naive-ui'
     import {
         computed,ref
     }from 'vue'
@@ -202,7 +231,8 @@
     import {
         Email,Bot,Locked
     }  from '@vicons/carbon'
-import axios from 'axios';
+    import axios from 'axios';
+    import {useIPStore} from "@/store/IPStore.ts";
     const router = useRouter()
     const email = ref('')
     const password = ref('')
@@ -211,14 +241,56 @@ import axios from 'axios';
     const gender = ref(0)
     // const data = ref('')
     const Captchas = ref('')
-    const baseURL = 'http://localhost:5173/api/'
+    // const baseURL = 'http://localhost:5173/api/'
     const flag = ref({
         register:'login',
         getCodeButtonDisable:false,
         changePassword:false
     })
     const countdownDuration = 60;
-
+    const showModal = ref(false)
+    const postDisable = ref(true)
+    const types = [
+      '编程',
+      '新闻',
+      '美食',
+      '工作',
+      '生活',
+      '社会',
+      '艺术',
+      '娱乐',
+      '旅行'
+    ]
+    const selectedType = ref([])
+    function addType(type:string) {
+      if (selectedType.value.includes(type)) {
+        message.error('您已经添加了这个话题')
+      }
+      else {
+        if (selectedType.value.length >= 1) {
+          postDisable.value = false
+        }
+        if (selectedType.value.length > 2) {
+          message.error('抱歉，最多只能选择三个话题')
+          return
+        }
+        selectedType.value.push(type)
+      }
+    }
+    function postType() {
+      showModal.value = false
+      // console.log("------------")
+      // console.log(selectedType[0])
+      // console.log('===========')
+      router.push({
+        name:'article-list',
+        params:{
+          type:selectedType.value[0],
+          type1:selectedType.value[1],
+          type2:selectedType.value[2]
+        }
+      })
+    }
 // 创建响应式变量用于存储剩余时间和控制按钮禁用状态
     const timeout = ref(countdownDuration); 
     let timer: number | null = null;
@@ -228,7 +300,7 @@ import axios from 'axios';
     function changePassword() {
       axios({
         method:'put',
-        url:baseURL + 'user/change-password',
+        url:useIPStore().baseURL + 'user/change-password',
         data:{
           email:email.value,
           password:password.value,
@@ -262,7 +334,7 @@ import axios from 'axios';
     
         axios({
             method:'post',
-            url:'http://localhost:5173/api/user/Captcha',
+            url:useIPStore().baseURL + '/user/Captcha',
             data:{
                 email:email.value
             },
@@ -300,7 +372,7 @@ import axios from 'axios';
         // const data:string = '';
         axios({
             method:'post',
-            url:'http://localhost:5173/api/user/login',
+            url:useIPStore().baseURL + '/user/login',
             data:{
                 email:email.value,
                 password:password.value
@@ -349,49 +421,51 @@ import axios from 'axios';
 
     }
     function register() {
-        axios({
-            method:'post',
-            url:'http://localhost:5173/api/user/register',
-            data:{
-                userName:nickname.value,
-                email:email.value,
-                password:password.value,
-                gender:gender.value,
-                captcha:Captchas.value
-            },
-            headers: {
-                // 这里有个坑，post请求默认以json形式发送数据，如果后端没有一个相应的类接收，并且加上@requestBody，则返回500
-                // 如果指定请求头如下，则后端可以一个一个参数地分别接收。
-            'Content-Type': 'application/x-www-form-urlencoded'
+      axios({
+          method:'post',
+          url:useIPStore().baseURL + '/user/register',
+        // url:'/user/register',
+          data:{
+              userName:nickname.value,
+              email:email.value,
+              password:password.value,
+              gender:gender.value,
+              captcha:Captchas.value
+          },
+          headers: {
+              // 这里有个坑，post请求默认以json形式发送数据，如果后端没有一个相应的类接收，并且加上@requestBody，则返回500
+              // 如果指定请求头如下，则后端可以一个一个参数地分别接收。
+          'Content-Type': 'application/x-www-form-urlencoded'
+      }
+      })
+      .then(function (resp) {
+          if (resp.data.code === 1) {
+              console.log(resp.data.code + '111');
+              message.error('输入的数据有误，请您再检查一下哦^_^')
+          }
+          else if (resp.data.code === 2) {
+              console.log(resp.data.code + '222');
+              message.error('抱歉呢，此邮箱已被占用')
+          }
+          else {
+            // showModal.value = true
+            message.success('注册成功！')
+            showModal.value = true
+            let mapData = resp.data.data
+            for( let key in  mapData) {
+              let expireTime = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // 三天后过期
+              localStorage.setItem('token',key)
+              localStorage.setItem('user',JSON.stringify(mapData[key]))
+              localStorage.setItem('expireTime',expireTime.toString())
+            }
+            // router.push({
+            //   name:'article-list',
+            //   params:{
+            //     type:'编程'
+            //   }
+            // })
         }
-        })
-        .then(function (resp) {
-            if (resp.data.code === 1) {
-                console.log(resp.data.code + '111');
-                message.error('输入的数据有误，请您再检查一下哦^_^')
-            }
-            else if (resp.data.code === 2) {
-                console.log(resp.data.code + '222');
-                
-                message.error('抱歉呢，此邮箱已被占用')
-            }
-            else {
-                message.success('注册成功！')
-                let mapData = resp.data.data
-                for( let key in  mapData) {
-                  let expireTime = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // 三天后过期
-                  localStorage.setItem('token',key)
-                  localStorage.setItem('user',JSON.stringify(mapData[key]))
-                  localStorage.setItem('expireTime',expireTime.toString())
-                }
-                router.push({
-                  name:'article-list',
-                  params:{
-                    type:'编程'
-                  }
-                })
-            }
-        })
+      })
     }
 // 邮箱验证函数
     function validateEmailStatus(email: string) {

@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { quillEditor } from 'vue3-quill';
-import {reactive,ref,nextTick} from 'vue'
+import {reactive,ref} from 'vue'
 import {NButton, NInput, NSpace, NTag, useMessage} from 'naive-ui';
 import type { UploadInst, UploadFileInfo } from 'naive-ui'
+import {useIPStore} from "@/store/IPStore.ts";
   // components: {
   //   quillEditor
   // }
 
   const uploadRef = ref<UploadInst | null>(null)
   // const upload = uploadRef.value
-  
-  const fileListLengthRef = ref(0)
+const avatar_url = useIPStore().baseURL + "/upload-article-image/1"
+const fileListLengthRef = ref(0)
   // const fileListLength = fileListLengthRef.value
   const handleChange = (options: { fileList: UploadFileInfo[] }) => {
         fileListLengthRef.value = options.fileList.length
@@ -157,6 +158,7 @@ import {
 import axios from 'axios'
 import router from "@/router";
 
+
 // 发布文章，即把文章存到服务器上
 async function publish(){
   await axios({
@@ -165,7 +167,7 @@ async function publish(){
       // 'Content-Encoding':'utf-8',
       'Content-Type': 'application/x-www-form-urlencoded'
     },
-    url:'http://localhost:5173/api/save-article',
+    url:useIPStore().baseURL + '/save-article',
     data:{
       id:user.value.userId,
       name:user.value.userName,
@@ -235,7 +237,7 @@ async function publish(){
               <div class="cover-image-upload" style="margin-top: 20px;">
                 <h4>添加封面：</h4>
                 <n-upload
-                action="http://localhost:5173/api/upload-article-image/1"          
+                :action=avatar_url
                 list-type="image-card"        
                 multiple
                 type="image"
@@ -303,7 +305,7 @@ async function publish(){
 .title-input{
   width: 100%;
   font-size: 30px;
-  font-family: '微软雅黑', '宋体', '华文黑体';
+  font-family: '微软雅黑', '宋体', '华文黑体',serif;
   font-weight: bold;
   background: inherit;
   border: none;
@@ -313,6 +315,6 @@ async function publish(){
 }
 img {
   height: 250px;
-  width: 450;
+  width: 450px;
 }
 </style>

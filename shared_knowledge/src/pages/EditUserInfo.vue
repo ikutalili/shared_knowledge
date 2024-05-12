@@ -3,8 +3,9 @@ import {
   NInput, NFlex, NCard, NButton, NAvatar, NUpload, useDialog, useMessage, useLoadingBar, NIcon
 } from 'naive-ui'
 import {GenderFemale,GenderMale} from '@vicons/carbon'
-import {ref,watch,onMounted,nextTick} from 'vue'
+import {ref,watch,} from 'vue'
 import {useRouter} from 'vue-router'
+import {useIPStore} from "@/store/IPStore.ts";
 import axios from 'axios'
 let userObj = localStorage.getItem('user')
 let user = ref(JSON.parse(userObj))
@@ -18,10 +19,11 @@ const passwordChange = ref(false);
 const passwordButtonDisable = ref(true)
 const sendCodeButton = ref(false)
 const captchaShow = ref(false)
-const baseURL = 'http://localhost:5173/api/'
+// const baseURL = 'http://localhost:5173/api/'
+const baseURL = useIPStore().baseURL
 const uploadPath = baseURL + 'upload/' + user.value.userId
 console.log('user-id-->'  + user.value.userId)
-const avatarUrl = ref('http://localhost:8080/avatar-image/1/' + user.value.avatarUrl)
+const avatarUrl = ref(useIPStore().avatarURL + user.value.avatarUrl)
 // console.log('url-->' + avatarUrl.value);
 console.log(user.value.userId);
 let timeout = ref(60)

@@ -16,7 +16,7 @@ const router = createRouter({
     history:createWebHistory(),// 路由器工作模式
     routes:[
         {
-            path:'/:type',
+            path:'/',
             component:ArticlesList,
             props:true
         },
@@ -42,7 +42,6 @@ const router = createRouter({
             path:'/my-page',
             component:MyPage,
             children:[
-               
                 {
                     path:'articles',
                     component:PreviewArticles
@@ -51,7 +50,7 @@ const router = createRouter({
         },
         {
             name:'article-list',
-            path:'/articles-list/:type',
+            path:'/articles-list/:type/:type1?/:type2?',
             component:ArticlesList
         },
         {

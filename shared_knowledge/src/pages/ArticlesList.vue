@@ -5,15 +5,21 @@ import {ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import axios from 'axios'
 import {DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined} from "@vicons/antd";
-
+import {useHeadContentStore} from "@/store/HeadContent.ts";
+const headContentStore = useHeadContentStore()
 const router = useRouter()
 const route = useRoute()
 const msg = useMessage()
 const loading = useLoadingBar()
 const userObj = localStorage.getItem('user')
 const user = JSON.parse(userObj)
+console.log('the user info ...')
 console.log(user)
-const baseURL = 'http://localhost:5173/api/'
+// const baseURL = 'http://localhost:5173/api/'
+import {useIPStore} from "@/store/IPStore.ts";
+const ip = useIPStore()
+// const baseURL = 'http://192.168.31.62:5173/api/'
+const baseURL = ip.baseURL
 // const color = ref('')
 interface Article {
   like:boolean;
@@ -34,7 +40,6 @@ interface Article {
   numOfSaves: number;
   numOfComments: number;
   publishTime: Date; // 根据数据库存储的格式定义
-
   profile:string;
   hasFollowed:string;
   followingCounts:number;
@@ -44,8 +49,16 @@ interface Article {
 const articles = ref<Article[]>([]) // ts泛型
 const fetchData = () => {
 loading.start()
+const url = ref('')
+if (route.params.type1 != '' || route.params.type2 != '' ) {
+  url.value = baseURL + '/articles/list/' + route.params.type + '/' + route.params.type1 + '/' + route.params.type2
+}
+else {
+  url.value = baseURL + '/articles/list/' + route.params.type
+}
 axios({
-    url:baseURL + 'articles/list/' + route.params.type
+    // url:baseURL + '/articles/list/' + route.params.type + '/' + route.params.type1 + '/' + route.params.type2
+  url:url.value
 })
 .then(function (resp) {
     if (resp.data.code === 0) {
@@ -67,7 +80,9 @@ console.log(articles.value)
 fetchData()
     // 使用 watch 函数监听路由参数的变化，并在变化时重新获取数据
 watch(() => route.params.type, fetchData)
-  
+watch(() => headContentStore.articles,(newVal,oldVal) => {
+  articles.value = newVal
+})
 console.log(articles)
 function likeArticle(article : Article) {
   console.log(article.like)
@@ -161,7 +176,6 @@ function saveArticle(article: Article) {
             })
     }
     else{
-
         axios ({
             method:'put',
             url:baseURL + 'articles/operation-to-article/' + article.articleId + '/save/false'
@@ -176,34 +190,34 @@ function saveArticle(article: Article) {
                 msg.error('please login first !')
               }
             })
-
     }
-    
 }
-function followUser(which: number,article) {
+function followUser(which: number,article:Article) {
+  if (user == null) {
+    router.push({
+      path:'/login'
+    })
+    msg.error('你还未登录，请先登录')
+    return
+  }
   if (which == 1) { // 1代表要取消关注
     console.log(article.hasFollowed)
-    axios({
-      method:'put',
-      url:baseURL + 'user/unfollow-user/' + user.userId + '/' + article.authorId
-    })
-        .then(function (resp) {
-          if (resp.data.code == 0) {
-            // articles.value = articles.value.map(a => {
-            //   if (a.authorId == article.authorId) {
-            //     a.hasFollowed = 'false'
-            //     a.fansCounts -= 1
-            //     return a
-            //   }
-            // })
-            articles.value.forEach(a => {
-              if (a.authorId == article.authorId) {
-                a.hasFollowed = 'false';
-                a.fansCounts -= 1;
-              }})
-            msg.success('you have unfollowed he/she!')
-          }
-        })
+      axios({
+        method:'put',
+        url:baseURL + 'user/unfollow-user/' + user.userId + '/' + article.authorId
+      })
+          .then(function (resp) {
+            if (resp.data.code == 0) {
+              articles.value.forEach(a => {
+                if (a.authorId == article.authorId) {
+                  a.hasFollowed = 'false';
+                  a.fansCounts -= 1;
+                }})
+              msg.success('已取消关注 ' + article.authorName)
+              user.following -= 1
+              localStorage.setItem('user',JSON.stringify(user))
+            }
+          })
   }
   else {
     console.log(article.hasFollowed+'-----')
@@ -221,7 +235,9 @@ function followUser(which: number,article) {
                 a.fansCounts += 1;
               }
             })
-            msg.success('you have followed he/she!')
+            msg.success('已关注 ' + article.authorName)
+            user.following += 1
+            localStorage.setItem('user',JSON.stringify(user))
           }
         })
   }
@@ -229,8 +245,11 @@ function followUser(which: number,article) {
 // 此数据从sidecontent中得来，是一系列的文章展示
 // const articleObj = localStorage.getItem('articles')
 // const articles = JSON.parse(articleObj)
-const coverUrl = ref('http://localhost:8080/avatar-image/2/')
-const avatarUrl = ref('http://localhost:8080/avatar-image/1/')
+// const coverUrl = ref('http://localhost:8080/avatar-image/2/')
+// const avatarUrl = ref('http://localhost:8080/avatar-image/1/')
+const coverUrl = ip.coverURL
+const avatarUrl = ip.avatarURL
+
 
 function clickArticle (article : Article,articleUrl : string) { // 此处参数的article是列出来的文章中点击的其中一篇，是一个对象，暂时通过localstorage传递信息
   axios({

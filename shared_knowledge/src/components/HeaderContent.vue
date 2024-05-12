@@ -11,29 +11,28 @@
     import {useRouter} from 'vue-router'
     const router = useRouter()
      // 导入SideContent.ts中的 useSideContent 变量
-    import {useSideContentStore} from '../store/SideContent'
+    import {useHeadContentStore} from "@/store/HeadContent.ts";
+    import {useIPStore} from "@/store/IPStore.ts";
     import axios from 'axios'
-    const sideContentStore = useSideContentStore()
+
+    const headContentStore = useHeadContentStore()
+    const ip = useIPStore()
     const user = ref(JSON.parse(localStorage.getItem('user')))
     // console.log(user.value)
-    function test1(){
-        sideContentStore.show = false
-      console.log(sideContentStore.show)
-      router.push({
-          path:'/login',
-          // query:{
-          //   id:'123',
-          //   title:'hello'
-          // }
-      })
-    }
+
     function management() {
       router.push({
         path:'/management'
       })
 
     }
+
+
     const keyword = ref('')
+    function searchArticle(keyword:string) {
+      headContentStore.searchArticle(keyword)
+    }
+
     // const baseURL = 'http://localhost:5173/api'
 
     const showModalRef = ref(false)
@@ -52,9 +51,9 @@
       timeoutRef.value = 1000 // 此处设置加载时间
       countdown()
     }
-      const showModal = showModalRef
-      const timeout =  timeoutRef
-      const baseURL = 'http://localhost:5173/api'
+      // const showModal = showModalRef
+      // const timeout =  timeoutRef
+      const baseURL = ip.baseURL
       const renderIcon = (icon: Component) => {
         return () => {
             return h(NIcon, null, {
@@ -86,7 +85,7 @@
         // const token = localStorage.getItem('token')
         if (String(key) == 'profile'){
           axios({
-            url:baseURL + '/user/my-info',
+            url:useIPStore().baseURL + '/user/my-info',
           })
               .then(function (resp) {
                 if (resp.data.data === null) {
@@ -106,7 +105,7 @@
       }
       else if (String(key) == 'logout') {
           axios({
-            url:baseURL + '/user/logout',
+            url:useIPStore().baseURL + '/user/logout',
           })
           .then(function (resp) {
             if (resp.data.code === 0) {
@@ -125,7 +124,7 @@
       }
       else if ( String(key) == 'editProfile') {
           axios({
-            url:baseURL + '/user' + '/checkUserLoggedIn'
+            url:useIPStore().baseURL + '/user' + '/checkUserLoggedIn'
           })
               .then(function (resp) {
                 if (resp.data.code === 0) {
@@ -153,7 +152,7 @@
     const token = localStorage.getItem('token');
 
     try {
-        const response = await axios.get('http://localhost:5173/api/user/checkUserLoggedIn',  {
+        const response = await axios.get(useIPStore().baseURL + '/user/checkUserLoggedIn',  {
             headers: {
               'Authorization':token
             }
@@ -213,9 +212,9 @@ import logo from '../imgs/logo.png'
             </n-dropdown>
           <n-breadcrumb-item @click="management()" v-if="user!=null && user.role==2">
             <n-icon :component="TaskTools" /> 管理</n-breadcrumb-item>
-            <n-input round v-model:value="keyword" type="text" size="small" placeholder="输入你想搜索的东西" >
+            <n-input round v-model:value="keyword" type="text" size="small" @keyup.enter = "searchArticle(keyword)" placeholder="输入你想搜索的东西" >
                 <template #suffix>
-                <n-icon :component="MdSearch" />
+                <n-icon :component="MdSearch"  />
                 </template>
             </n-input>
             
