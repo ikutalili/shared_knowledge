@@ -14,6 +14,7 @@
 
 ## see information about yourself
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/d43b9919-7c1d-43ae-bc05-821bd4d65536)
+![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/2b6a2a9b-c361-4018-9abd-ec090cd8d59b)
 
 ## you can write articles for yourself
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/e1837615-4742-4019-91a8-f353ccbc3199)
