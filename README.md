@@ -9,6 +9,12 @@
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/9120ad2c-6818-4e12-9a8c-b41fa825ac8e)
 ## the ranking articles/hot articles
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/87824e46-74bd-4aee-9166-2b16d47ea222)
+## follow a user
+![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/e9f19e8b-038d-4e7a-8fbd-229481360b67)
+
+## see information about yourself
+![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/d43b9919-7c1d-43ae-bc05-821bd4d65536)
+
 ## you can write articles for yourself
 ![image](https://github.com/ikutalili/shared_knowledge/assets/139844075/e1837615-4742-4019-91a8-f353ccbc3199)
 ## the personal information page
